@@ -22,11 +22,15 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final _random = Random();
+  /// Initiate the first color
   Color _currentColor = Colors.blue;
 
+  /// Use built-in Flutter math library to generate random numbers
   int _randomInt(int min, int max) => min + _random.nextInt(max - min);
+  /// Generate double from 0 to 1, so there's no need for parameters
   double _randomDouble() => _random.nextDouble();
 
+  /// Generate a new color based on new RGBO values.
   void _generateColor() {
     setState(() => _currentColor = Color.fromRGBO(
       _randomInt(0, maxDensityValue),
