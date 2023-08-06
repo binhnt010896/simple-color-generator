@@ -8,9 +8,9 @@ void main() {
   testWidgets('Generate new color on screen tap', (WidgetTester tester) async {
     await tester.pumpWidget(const Main());
 
-    // Verify that our app begins with the primary color
+    // Verify that our app begins with a random color
     expect(find.text('Hello there'), findsOneWidget);
-    expect(find.text('Current color in HEX: 0xFF2196F3'), findsOneWidget);
+    expect(find.textContaining(RegExp(r'0x[0-9A-F]{8}$')), findsOneWidget);
 
     // Click anywhere in app
     await tester.tap(find.byKey(const Key('home_bg')));

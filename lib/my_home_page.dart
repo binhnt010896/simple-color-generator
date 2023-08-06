@@ -30,15 +30,18 @@ class _MyHomePageState extends State<MyHomePage> {
   /// Generate double from 0 to 1, so there's no need for parameters
   double _randomDouble() => _random.nextDouble();
 
-  /// Generate a new color based on new RGBO values.
+  /// Handle generating new color
   void _generateColor() {
-    setState(() => _currentColor = Color.fromRGBO(
-      _randomInt(0, maxDensityValue),
-      _randomInt(0, maxDensityValue),
-      _randomInt(0, maxDensityValue),
-      _randomDouble(),
-    ),);
+    setState(() => _currentColor = _randomColor,);
   }
+
+  /// Generate a new color based on new RGBO values.
+  Color get _randomColor => Color.fromRGBO(
+    _randomInt(0, maxDensityValue),
+    _randomInt(0, maxDensityValue),
+    _randomInt(0, maxDensityValue),
+    _randomDouble(),
+  );
 
   Future<void> _copyColor() async {
     await Clipboard.setData(ClipboardData(text: _getColorHex)).then((_) {
@@ -53,6 +56,12 @@ class _MyHomePageState extends State<MyHomePage> {
   String get _getColorHex => '0x${_currentColor.value
       .toRadixString(hex)
       .toUpperCase()}';
+
+  @override
+  void initState() {
+    _currentColor = _randomColor;
+    super.initState();
+  }
   
   @override
   Widget build(BuildContext context) {
