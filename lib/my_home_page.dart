@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -8,8 +9,8 @@ const maxDensityValue = 255;
 /// Define HEX
 const hex = 16;
 
-/// Define the number of digits after decimal points for double variables
-const roundDecimalPoint = 2;
+/// Define "Hello there" font size
+const titleFontSize = 36.0;
 
 /// MyHomePage is the main and only screen for this application
 class MyHomePage extends StatefulWidget {
@@ -27,35 +28,62 @@ class _MyHomePageState extends State<MyHomePage> {
 
   /// Use built-in Flutter math library to generate random numbers
   int _randomInt(int min, int max) => min + _random.nextInt(max - min);
-  /// Generate double from 0 to 1, so there's no need for parameters
-  double _randomDouble() => _random.nextDouble();
 
   /// Handle generating new color
   void _generateColor() {
     setState(() => _currentColor = _randomColor,);
   }
 
-  /// Generate a new color based on new RGBO values.
+  /// Generate a new color based on new RGB values.
   Color get _randomColor => Color.fromRGBO(
     _randomInt(0, maxDensityValue),
     _randomInt(0, maxDensityValue),
     _randomInt(0, maxDensityValue),
-    _randomDouble(),
+    1,
   );
 
+  /// Generate complementary color for _currentColor.
+  Color get _complementaryColor => Color.fromRGBO(
+    maxDensityValue - _currentColor.red,
+    maxDensityValue - _currentColor.green,
+    maxDensityValue - _currentColor.blue,
+    1,
+  );
+
+  /// Copy _currentColor in HEX
   Future<void> _copyColor() async {
     await Clipboard.setData(ClipboardData(text: _getColorHex)).then((_) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        key: Key('copied_snackbar'),
         content: Text("Copied current color in HEX"),
         backgroundColor: Colors.green,
       ),);
     });
   }
 
+  /// Get color in HEX string
   String get _getColorHex => '0x${_currentColor.value
       .toRadixString(hex)
       .toUpperCase()}';
+
+  /// Show info about the complementary box
+  void _showInfoDialog() {
+    showCupertinoModalPopup<void>(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: const Text('Info'),
+        content: const Text(
+          'This box is in the complementary color of the background.',
+        ),
+        actions: <CupertinoDialogAction>[
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Got it!'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -77,33 +105,46 @@ class _MyHomePageState extends State<MyHomePage> {
                 width: MediaQuery.of(context).size.width,
                 color: Colors.transparent,
                 child: Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    color: Colors.white,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Hello there',
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.w700,
-                          ),
+                  child: Stack(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        color: _complementaryColor,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Hello there',
+                              style: TextStyle(
+                                fontSize: titleFontSize,
+                                fontWeight: FontWeight.w700,
+                                color: _currentColor,
+                              ),
+                            ),
+                            Text(
+                              'Current color in HEX: $_getColorHex',
+                              key: const Key('color_in_hex'),
+                              style: TextStyle(color: _currentColor),
+                            ),
+                            Text('Current color in RGB:\n'
+                                'R: ${_currentColor.red}\n'
+                                'B: ${_currentColor.blue}\n'
+                                'G: ${_currentColor.green}',
+                              style: TextStyle(color: _currentColor),
+                            )
+                          ],
                         ),
-                        Text(
-                          'Current color in HEX: $_getColorHex',
-                          key: const Key('color_in_hex'),
+                      ),
+                      Positioned(
+                        right: 0,
+                        top: 0,
+                        child: IconButton(
+                          onPressed: _showInfoDialog,
+                          icon: Icon(Icons.info, color: _currentColor,),
                         ),
-                        Text('Current color in RGBO:\n'
-                            'R: ${_currentColor.red}\n'
-                            'B: ${_currentColor.blue}\n'
-                            'G: ${_currentColor.green}\n'
-                            'O: ${_currentColor.opacity
-                            .toStringAsFixed(roundDecimalPoint)}'
-                        )
-                      ],
-                    ),
+                      )
+                    ],
                   ),
                 ),
               ),
